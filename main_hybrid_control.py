@@ -508,6 +508,41 @@ def show_user_guide_window():
 
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+def draw_fps(frame, fps_value):
+    """Dibuja los FPS actuales en la esquina inferior derecha."""
+
+    text = f"FPS: {fps_value:.1f}"
+
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    scale = 0.65
+    thickness = 2
+
+    h, w = frame.shape[:2]
+
+    (text_w, text_h), _ = cv2.getTextSize(
+        text,
+        font,
+        scale,
+        thickness,
+    )
+
+    x = w - text_w - 20
+    y = h - 20
+
+    cv2.putText(
+        frame,
+        text,
+        (x, y),
+        font,
+        scale,
+        (255, 255, 255),
+        thickness,
+    )
+
+
+
+
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 def main():
     """Ejecuta el bucle principal de cámara, gestos, estados y control del robot."""
 
@@ -619,6 +654,11 @@ def main():
 
     # Memorias de transición y depuración
     last_hand_seen = time.time()
+
+    # Medición aproximada de FPS del bucle principal
+    fps_prev_time = time.time()
+    fps_value = 0.0
+
     last_state = None
     last_command_printed = None
     last_target_pose = None
@@ -673,6 +713,15 @@ def main():
 
             # Tiempo de iteración
             now = time.time()
+
+            # Cálculo aproximado de FPS del bucle principal
+            dt_fps = now - fps_prev_time
+
+            if dt_fps > 0:
+                fps_instant = 1.0 / dt_fps
+                fps_value = 0.90 * fps_value + 0.10 * fps_instant
+
+            fps_prev_time = now
 
             # Tecla pulsada en esta iteración
             key = read_key()
@@ -1035,6 +1084,7 @@ def main():
                 if manual_stop_latched and stop_reason == "RUDE":
                     draw_rude_warning_overlay(frame)
 
+                draw_fps(frame, fps_value)
                 cv2.imshow("Control híbrido UR3", frame)
 
                 continue
@@ -1061,6 +1111,7 @@ def main():
                     progress=0.0,
                 )
 
+                draw_fps(frame, fps_value)
                 cv2.imshow("Control híbrido UR3", frame)
 
                 continue
@@ -1121,6 +1172,7 @@ def main():
 
                 draw_rude_warning_overlay(frame)
 
+                draw_fps(frame, fps_value)
                 cv2.imshow("Control híbrido UR3", frame)
 
                 continue
@@ -1268,6 +1320,7 @@ def main():
                         2,
                     )
 
+                    draw_fps(frame, fps_value)
                     cv2.imshow("Control híbrido UR3", frame)
 
                     continue
@@ -1320,6 +1373,7 @@ def main():
                     2,
                 )
 
+                draw_fps(frame, fps_value)
                 cv2.imshow("Control híbrido UR3", frame)
 
                 continue
@@ -1355,6 +1409,7 @@ def main():
                         2,
                     )
 
+                    draw_fps(frame, fps_value)
                     cv2.imshow("Control híbrido UR3", frame)
                     continue
 
@@ -1578,6 +1633,7 @@ def main():
                     2,
                 )
 
+                draw_fps(frame, fps_value)
                 cv2.imshow("Control híbrido UR3", frame)
                 continue
 
@@ -1974,6 +2030,7 @@ def main():
                 progress=progress,
             )
 
+            draw_fps(frame, fps_value)
             cv2.imshow("Control híbrido UR3", frame)
 
 
